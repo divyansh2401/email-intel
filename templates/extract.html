@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+{% block body %}
+<div class="card">
+  <h2>New Extraction</h2>
+  <form hx-post="/api/jobs" hx-swap="none">
+    <div class="row">
+      <div>
+        <div class="meta">Job Name</div>
+        <input name="name" value="scan" required>
+      </div>
+      <div>
+        <div class="meta">Server Path (file or directory)</div>
+        <input name="server_path" placeholder="D:\data or C:\logs\huge.jsonl" required>
+      </div>
+      <div>
+        <div class="meta">Workers</div>
+        <input name="workers" value="8">
+      </div>
+      <div>
+        <div class="meta">Chunk Size (MB)</div>
+        <input name="chunk_mb" value="512">
+      </div>
+      <div>
+        <div class="meta">Include domains</div>
+        <input name="include_domains" placeholder="acme.com, example.org">
+      </div>
+      <div>
+        <div class="meta">Deny domains</div>
+        <input name="deny_domains" placeholder="gmail.com, yahoo.com">
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <button class="btn btn-green">Start Extraction</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Recent Jobs</h2>
+  <table class="table">
+    <thead><tr><th>Name</th><th>Status</th><th>Progress</th><th>MB/s</th><th>ETA</th><th>Found</th><th>Actions</th></tr></thead>
+    <tbody hx-get="/api/jobs/table" hx-trigger="load, every 1s" hx-target="this" hx-swap="innerHTML">
+      {% for j in jobs %}
+      <tr>
+        <td>{{j.name}}</td>
+        <td>{{j.status}}</td>
+        <td>{% if j.total_bytes %}{{'%.1f' % (j.processed_bytes / j.total_bytes * 100)}}%{% else %}0.0%{% endif %}</td>
+        <td>{{'%.2f' % j.mbps}}</td>
+        <td>{% if j.eta_seconds %}{{ j.eta_seconds }}s{% else %}0s{% endif %}</td>
+        <td>{{j.emails_found}}</td>
+        <td>
+          <button class="btn btn-yellow" hx-post="/api/jobs/{{j.id}}/pause" hx-swap="none">Pause</button>
+          <button class="btn btn-green" hx-post="/api/jobs/{{j.id}}/resume" hx-swap="none">Resume</button>
+          <button class="btn btn-red"   hx-post="/api/jobs/{{j.id}}/cancel" hx-swap="none">Cancel</button>
+          <button class="btn btn-red"   hx-post="/api/jobs/{{j.id}}/delete" hx-swap="none">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+
+{% extends "base.html" %}
+{% block body %}
+  <div class="card">
+    <h2>Extractions</h2>
+    <table class="table">
+      <thead><tr><th>Name</th><th>Status</th><th>Progress</th><th>MB/s</th><th>ETA</th><th>Found</th><th>Actions</th></tr></thead>
+      <tbody hx-get="/api/jobs/table" hx-trigger="load, every 1s" hx-target="this" hx-swap="innerHTML">
+        {{ '' }}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
